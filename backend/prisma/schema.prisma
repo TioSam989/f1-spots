@@ -9,6 +9,7 @@ datasource db {
 enum Role {
   USER
   ADMIN
+  SUPERADMIN
 }
 
 model User {
@@ -26,6 +27,11 @@ model User {
   invitedBy     String?   @map("invited_by")
   invite        Invite?   @relation(fields: [invitedBy], references: [id])
   spots         Spot[]
+
+  createdVotes  Vote[]    @relation("VoteCreator")
+  targetOfVotes Vote[]    @relation("VoteTarget")
+  voteParticipations VoteParticipant[]
+  voteComments  VoteComment[]
 
   @@map("users")
 }
@@ -65,4 +71,69 @@ model Spot {
   updatedAt     DateTime      @updatedAt @map("updated_at")
 
   @@map("spots")
+}
+
+enum VoteType {
+  REMOVE_SUPERADMIN
+  REMOVE_ADMIN
+}
+
+enum VoteStatus {
+  ACTIVE
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum VoteDecision {
+  APPROVE
+  REJECT
+}
+
+model Vote {
+  id              String      @id @default(cuid())
+  type            VoteType
+  status          VoteStatus  @default(ACTIVE)
+  targetUserId    String      @map("target_user_id")
+  targetUser      User        @relation("VoteTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+  createdById     String      @map("created_by_id")
+  createdBy       User        @relation("VoteCreator", fields: [createdById], references: [id])
+  reason          String?
+  requiredVotes   Int         @default(2) @map("required_votes")
+  approveCount    Int         @default(0) @map("approve_count")
+  rejectCount     Int         @default(0) @map("reject_count")
+  expiresAt       DateTime    @map("expires_at")
+  closedAt        DateTime?   @map("closed_at")
+  cleanupAt       DateTime?   @map("cleanup_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  participants    VoteParticipant[]
+  comments        VoteComment[]
+
+  @@map("votes")
+}
+
+model VoteParticipant {
+  id          String        @id @default(cuid())
+  voteId      String        @map("vote_id")
+  vote        Vote          @relation(fields: [voteId], references: [id], onDelete: Cascade)
+  userId      String        @map("user_id")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  decision    VoteDecision
+  votedAt     DateTime      @default(now()) @map("voted_at")
+
+  @@unique([voteId, userId])
+  @@map("vote_participants")
+}
+
+model VoteComment {
+  id          String    @id @default(cuid())
+  voteId      String    @map("vote_id")
+  vote        Vote      @relation(fields: [voteId], references: [id], onDelete: Cascade)
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment     String
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("vote_comments")
 }

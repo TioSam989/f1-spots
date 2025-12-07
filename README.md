@@ -164,6 +164,7 @@ f1+spots/
 │   ├── src/
 │   │   ├── auth/        # Authentication & JWT
 │   │   ├── admin/       # Admin & invite management
+│   │   ├── voting/      # SuperAdmin voting system
 │   │   ├── prisma/      # Database service
 │   │   └── main.ts
 │   ├── prisma/
@@ -173,29 +174,56 @@ f1+spots/
 ├── frontend/             # SvelteKit app
 │   ├── src/
 │   │   ├── routes/      # Pages
+│   │   │   ├── admin/   # Admin dashboard
+│   │   │   │   └── voting/  # Voting page
 │   │   └── lib/         # API client
 │   └── README.md
+├── docs/                 # Documentation
+│   ├── README.md        # Documentation index
+│   └── SUPERADMIN_VOTING.md
 ├── docker-compose.yml    # Docker services
+├── LICENSE
 └── README.md
 ```
 
 ## Documentation
 
-- [Backend Documentation](backend/README.md) - API endpoints, database schema, deployment
-- [Frontend Documentation](frontend/README.md) - Components, routing, styling
+### Quick Links
+- [📚 Complete Documentation](docs/README.md) - Full documentation index
+- [🔧 Backend API](backend/README.md) - API endpoints, database schema, deployment
+- [🎨 Frontend Guide](frontend/README.md) - Components, routing, styling
+
+### Feature Documentation
+- [🗳️ SuperAdmin Voting System](docs/SUPERADMIN_VOTING.md) - Democratic role removal voting
 
 ## Features Implemented
 
+### Authentication & Security
 - ✅ JWT Authentication with bcrypt password hashing
-- ✅ Role-based access control (ADMIN, USER)
+- ✅ Role-based access control (USER, ADMIN, SUPERADMIN)
 - ✅ Invite system (5-hour expiration, single-use)
-- ✅ Admin dashboard for user management
 - ✅ User approval workflow
 - ✅ Username validation (must start with @)
 - ✅ Instagram handle verification
+
+### Admin Features
+- ✅ Admin dashboard for user management
+- ✅ Approve/reject pending users
+- ✅ Create and manage invites
+- ✅ Platform statistics tracking
+
+### SuperAdmin Features
+- ✅ **Democratic Voting System** - Remove admins/superadmins by vote
+- ✅ Vote with comments and discussions
+- ✅ Real-time countdown timers
+- ✅ Automatic vote expiration (24 hours)
+- ✅ Auto-cleanup after 1 hour
+
+### Technical
 - ✅ Privacy levels for spots (Private, Group, Public)
-- ✅ Statistics tracking
 - ✅ Docker setup for easy deployment
+- ✅ Scheduled tasks for vote management
+- ✅ Comprehensive documentation
 
 ## Roadmap
 
@@ -204,6 +232,7 @@ f1+spots/
 - [x] Database schema & Prisma setup
 - [x] Admin dashboard
 - [x] Invite system
+- [x] SuperAdmin voting system
 - [ ] User spots management
 - [ ] Map integration
 - [ ] Group functionality
