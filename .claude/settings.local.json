@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose up:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx prisma migrate:*)",
+      "Bash(npm install:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(node -e:*)",
+      "Bash(docker exec:*)",
+      "Bash(npm run start:dev:*)",
+      "Bash(cat:*)",
+      "Bash(npx nest build:*)",
+      "Bash(netstat:*)",
+      "Bash(awk:*)",
+      "Bash(taskkill /F /PID 2724 /PID 32512)",
+      "Bash(taskkill //F //PID 2724)",
+      "Bash(taskkill //F //PID 32512)",
+      "Bash(curl:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

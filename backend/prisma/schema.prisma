@@ -4,6 +4,19 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum PrivacyLevel {
+  PUBLIC
+  FRIENDS_ONLY
+  PRIVATE
 }
 
 model User {
@@ -11,9 +24,29 @@ model User {
   email        String   @unique
   username     String   @unique
   passwordHash String   @map("password_hash")
+  role         Role     @default(USER)
   profileImage String?  @map("profile_image")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
+  spots        Spot[]
+
   @@map("users")
+}
+
+model Spot {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  latitude     Float
+  longitude    Float
+  privacyLevel PrivacyLevel  @default(PUBLIC) @map("privacy_level")
+  images       String[]
+  creatorId    String        @map("creator_id")
+  creator      User          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@index([latitude, longitude])
+  @@map("spots")
 }
