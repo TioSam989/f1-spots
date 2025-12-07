@@ -90,7 +90,15 @@
 					<h1 class="text-2xl font-bold text-gray-900">F1 Spots Admin</h1>
 				</div>
 				<div class="flex items-center gap-4">
-					<span class="text-sm text-gray-600">{auth.getUser()?.username}</span>
+					{#if auth.isSuperAdmin()}
+						<a
+							href="/admin/voting"
+							class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+						>
+							Voting
+						</a>
+					{/if}
+					<span class="text-sm text-gray-600">{auth.getUser()?.username} ({auth.getUser()?.role})</span>
 					<button
 						onclick={logout}
 						class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
@@ -253,6 +261,9 @@
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
 								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Joined</th>
+								{#if auth.isSuperAdmin()}
+									<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+								{/if}
 							</tr>
 						</thead>
 						<tbody class="bg-white divide-y divide-gray-200">
@@ -268,9 +279,11 @@
 									<td class="px-6 py-4 whitespace-nowrap text-sm">
 										<span
 											class={`px-2 py-1 rounded-full text-xs ${
-												user.role === 'ADMIN'
-													? 'bg-purple-100 text-purple-800'
-													: 'bg-gray-100 text-gray-800'
+												user.role === 'SUPERADMIN'
+													? 'bg-pink-100 text-pink-800'
+													: user.role === 'ADMIN'
+														? 'bg-purple-100 text-purple-800'
+														: 'bg-gray-100 text-gray-800'
 											}`}
 										>
 											{user.role}
@@ -290,6 +303,27 @@
 									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
 										{new Date(user.createdAt).toLocaleDateString()}
 									</td>
+									{#if auth.isSuperAdmin()}
+										<td class="px-6 py-4 whitespace-nowrap text-sm">
+											{#if user.role === 'SUPERADMIN' && user.id !== auth.getUser()?.id}
+												<a
+													href="/admin/voting"
+													class="text-purple-600 hover:text-purple-800 text-xs"
+												>
+													Initiate Vote
+												</a>
+											{:else if user.role === 'ADMIN'}
+												<a
+													href="/admin/voting"
+													class="text-purple-600 hover:text-purple-800 text-xs"
+												>
+													Initiate Vote
+												</a>
+											{:else}
+												-
+											{/if}
+										</td>
+									{/if}
 								</tr>
 							{/each}
 						</tbody>

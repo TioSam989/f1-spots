@@ -65,7 +65,12 @@ export const auth = {
 
 	isAdmin() {
 		const user = this.getUser();
-		return user?.role === 'ADMIN';
+		return user?.role === 'ADMIN' || user?.role === 'SUPERADMIN';
+	},
+
+	isSuperAdmin() {
+		const user = this.getUser();
+		return user?.role === 'SUPERADMIN';
 	}
 };
 
@@ -103,5 +108,33 @@ export const admin = {
 
 	async getStats() {
 		return apiRequest('/admin/stats');
+	}
+};
+
+export const voting = {
+	async createVote(targetUserId: string, type: 'REMOVE_SUPERADMIN' | 'REMOVE_ADMIN', reason?: string) {
+		return apiRequest('/voting', {
+			method: 'POST',
+			body: JSON.stringify({ targetUserId, type, reason })
+		});
+	},
+
+	async castVote(voteId: string, decision: 'APPROVE' | 'REJECT', comment?: string) {
+		return apiRequest(`/voting/${voteId}/cast`, {
+			method: 'POST',
+			body: JSON.stringify({ decision, comment })
+		});
+	},
+
+	async getActiveVotes() {
+		return apiRequest('/voting/active');
+	},
+
+	async getVoteHistory() {
+		return apiRequest('/voting/history');
+	},
+
+	async getVoteById(voteId: string) {
+		return apiRequest(`/voting/${voteId}`);
 	}
 };
