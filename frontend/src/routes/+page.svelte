@@ -2,12 +2,6 @@
   import { onMount } from 'svelte';
   import { auth, spots, getToken } from '$lib/api';
   import mapboxgl from 'mapbox-gl';
-  import { createDialog } from '@melt-ui/svelte';
-
-  const {
-    elements: { trigger, overlay, content, title, description, close, portalled },
-    states: { open }
-  } = createDialog();
 
   let map: mapboxgl.Map;
   let mapContainer: HTMLDivElement;
@@ -20,6 +14,7 @@
   let spotsData: any[] = [];
   let selectedSpot: any = null;
   let showCreateSpot = false;
+  let newSpotMarker: mapboxgl.Marker | null = null;
   let newSpot = {
     name: '',
     description: '',
@@ -43,7 +38,7 @@
     if (isOver18) {
       showAgeWarning = false;
       if (isLoggedIn) {
-        initMap();
+        setTimeout(initMap, 100);
       }
     }
   }
@@ -54,7 +49,7 @@
       await auth.login(username, password);
       isLoggedIn = true;
       if (isOver18) {
-        initMap();
+        setTimeout(initMap, 100);
       }
     } catch (e: any) {
       error = e.message || 'Login failed';
@@ -64,6 +59,12 @@
   function initMap() {
     if (!MAPBOX_TOKEN) {
       error = 'Mapbox token not configured';
+      return;
+    }
+
+    if (!mapContainer) {
+      console.error('Map container not ready');
+      setTimeout(initMap, 100);
       return;
     }
 
@@ -89,13 +90,6 @@
 
     map.on('load', () => {
       loadSpots();
-
-      map.on('click', (e) => {
-        if (showCreateSpot) {
-          newSpot.latitude = e.lngLat.lat;
-          newSpot.longitude = e.lngLat.lng;
-        }
-      });
     });
   }
 
@@ -114,7 +108,6 @@
         el.addEventListener('click', () => {
           selectedSpot = spot;
           showCreateSpot = false;
-          $open = true;
         });
 
         new mapboxgl.Marker(el)
@@ -126,16 +119,71 @@
     }
   }
 
+  function toggleCreateSpot() {
+    showCreateSpot = !showCreateSpot;
+
+    if (showCreateSpot) {
+      // Create a draggable marker in the center of the map
+      const center = map.getCenter();
+      newSpot.latitude = center.lat;
+      newSpot.longitude = center.lng;
+
+      const el = document.createElement('div');
+      el.innerHTML = '📌';
+      el.style.fontSize = '32px';
+      el.style.cursor = 'grab';
+
+      newSpotMarker = new mapboxgl.Marker({
+        element: el,
+        draggable: true
+      })
+        .setLngLat([center.lng, center.lat])
+        .addTo(map);
+
+      newSpotMarker.on('dragend', () => {
+        const lngLat = newSpotMarker!.getLngLat();
+        newSpot = {
+          ...newSpot,
+          latitude: lngLat.lat,
+          longitude: lngLat.lng
+        };
+      });
+    } else {
+      // Remove the marker
+      if (newSpotMarker) {
+        newSpotMarker.remove();
+        newSpotMarker = null;
+      }
+      newSpot = { name: '', description: '', latitude: 0, longitude: 0, privacyLevel: 'PUBLIC' };
+      error = '';
+    }
+  }
+
   async function createSpot() {
     try {
-      if (!newSpot.name || !newSpot.latitude || !newSpot.longitude) {
-        error = 'Please fill in required fields';
+      error = '';
+
+      if (!newSpot.name) {
+        error = 'Please enter a name';
+        return;
+      }
+
+      if (!newSpot.latitude || !newSpot.longitude) {
+        error = 'Please drag the pin to set location';
         return;
       }
 
       await spots.create(newSpot);
+
+      // Remove marker and close dialog
+      if (newSpotMarker) {
+        newSpotMarker.remove();
+        newSpotMarker = null;
+      }
+
       showCreateSpot = false;
       newSpot = { name: '', description: '', latitude: 0, longitude: 0, privacyLevel: 'PUBLIC' };
+      error = '';
       loadSpots();
     } catch (e: any) {
       error = e.message || 'Failed to create spot';
@@ -242,13 +290,13 @@
   {:else}
     <div class="map" bind:this={mapContainer}></div>
 
-    <button class="add-btn" on:click={() => (showCreateSpot = !showCreateSpot)}>+</button>
+    <button class="add-btn" on:click={toggleCreateSpot}>+</button>
 
     {#if showCreateSpot}
-      <div class="overlay" on:click={() => (showCreateSpot = false)}>
+      <div class="overlay" on:click={toggleCreateSpot}>
         <div class="dialog" on:click|stopPropagation>
           <h3>Add Spot</h3>
-          <p>Click map to set location</p>
+          <p>📌 Drag the pin on the map to set location</p>
           <input type="text" placeholder="Name" bind:value={newSpot.name} />
           <textarea placeholder="Description" bind:value={newSpot.description}></textarea>
           <select bind:value={newSpot.privacyLevel}>
@@ -260,25 +308,24 @@
             <p>📍 {newSpot.latitude.toFixed(4)}, {newSpot.longitude.toFixed(4)}</p>
           {/if}
           <button class="btn-primary" on:click={createSpot}>Create</button>
-          <button class="btn-secondary" on:click={() => (showCreateSpot = false)}>Cancel</button>
+          <button class="btn-secondary" on:click={toggleCreateSpot}>Cancel</button>
           {#if error}<div class="error">{error}</div>{/if}
         </div>
       </div>
     {/if}
 
-    {#if $open}
-      <div use:melt={$portalled}>
-        <div use:melt={$overlay} class="overlay" />
-        <div use:melt={$content} class="dialog">
-          <h3 use:melt={$title}>{selectedSpot?.name}</h3>
-          {#if selectedSpot?.description}
-            <p use:melt={$description}>{selectedSpot.description}</p>
+    {#if selectedSpot}
+      <div class="overlay" on:click={() => (selectedSpot = null)}>
+        <div class="dialog" on:click|stopPropagation>
+          <h3>{selectedSpot.name}</h3>
+          {#if selectedSpot.description}
+            <p>{selectedSpot.description}</p>
           {/if}
-          <p>📍 {selectedSpot?.latitude.toFixed(4)}, {selectedSpot?.longitude.toFixed(4)}</p>
-          {#if selectedSpot?.creator}
+          <p>📍 {selectedSpot.latitude.toFixed(4)}, {selectedSpot.longitude.toFixed(4)}</p>
+          {#if selectedSpot.creator}
             <p>By: {selectedSpot.creator.username}</p>
           {/if}
-          <button use:melt={$close} class="btn-secondary">Close</button>
+          <button class="btn-secondary" on:click={() => (selectedSpot = null)}>Close</button>
         </div>
       </div>
     {/if}

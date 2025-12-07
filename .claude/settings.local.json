@@ -16,7 +16,10 @@
       "Bash(taskkill /F /PID 2724 /PID 32512)",
       "Bash(taskkill //F //PID 2724)",
       "Bash(taskkill //F //PID 32512)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git commit:*)",
+      "Bash(findstr:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

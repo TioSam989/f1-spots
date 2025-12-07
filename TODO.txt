@@ -1,0 +1,48 @@
+# F1+ Spots - Next Features
+
+## Priority 1: Map Interaction Improvements
+
+### Container beside map (NOT touching map)
+- Add a sidebar/panel next to the map (not overlay)
+- All controls and forms in this container
+- Map stays full interactive on the other side
+
+### Better spot creation with 3 options:
+1. **Click to add** (MOST IMPORTANT - NOT WORKING YET)
+   - User clicks "Add Spot" button
+   - Then clicks anywhere on map to place it
+   - One click = spot created at that point
+
+2. **Draggable pin with precision radius**
+   - Show a circle around the pin
+   - User can adjust radius to set precision
+   - Bigger circle = less precise, smaller = more precise
+   - User confirms with button/key press
+
+3. **Current drag method** (keep as option)
+   - Drag pin to position
+   - Set location manually
+
+## Priority 2: Images on Posts
+
+### Database changes needed:
+- Add image upload field to spots table
+- Store image URLs or paths
+- Support multiple images per spot
+
+### Frontend:
+- Image upload component
+- Image preview
+- Gallery view for spots with multiple images
+
+### Backend:
+- File upload endpoint
+- Image storage (local or cloud like S3/Cloudinary)
+- Image compression/optimization
+
+---
+
+## Notes:
+- Focus on click-to-add first (most important)
+- Precision radius circle is key for user experience
+- Map container should be separate from controls (no overlay on map)
