@@ -1,98 +1,359 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# F1 Spots Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS backend API for F1 Spots application with PostgreSQL database, Prisma ORM, JWT authentication, and user invite system.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **Authentication & Authorization**: JWT-based auth with role-based access control (USER, ADMIN)
+- **Invite System**: Temporary invite links that expire in 5 hours and can only be used once
+- **User Management**: Admin approval system for new users
+- **Password Encryption**: bcrypt for secure password hashing
+- **Database**: PostgreSQL with Prisma ORM
+- **Validation**: class-validator for DTO validation
+- **CORS**: Configured for frontend communication
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
 
-## Project setup
+- **Framework**: NestJS 11
+- **Database**: PostgreSQL 15
+- **ORM**: Prisma 7
+- **Authentication**: JWT (Passport.js)
+- **Validation**: class-validator, class-transformer
+- **Password Hashing**: bcrypt
 
-```bash
-$ npm install
-```
+## Prerequisites
 
-## Compile and run the project
+- Node.js 20+
+- Docker & Docker Compose
+- npm or yarn
 
-```bash
-# development
-$ npm run start
+## Getting Started
 
-# watch mode
-$ npm run start:dev
+### 1. Environment Setup
 
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
+Copy the example environment file and update values:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+cp .env.example .env
 ```
 
-## Deployment
+Update `.env` with your configuration:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+```env
+DATABASE_URL="postgresql://postgres:password@localhost:5432/f1spots?schema=public"
+PORT=3000
+JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
+JWT_EXPIRATION="7d"
+NODE_ENV=development
+```
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 2. Using Docker (Recommended)
+
+Start both PostgreSQL and the backend:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# From project root
+docker compose up -d
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+This will:
+- Start PostgreSQL on port 5432
+- Start the backend on port 3000
+- Run database migrations automatically
 
-## Resources
+### 3. Local Development (Without Docker)
 
-Check out a few resources that may come in handy when working with NestJS:
+#### Start PostgreSQL only
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+# From project root
+docker compose up postgres -d
+```
 
-## Support
+#### Install dependencies
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm install
+```
 
-## Stay in touch
+#### Run database migrations
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+npx prisma generate
+npx prisma migrate dev
+```
+
+#### Start development server
+
+```bash
+npm run start:dev
+```
+
+The backend will be available at `http://localhost:3000`
+
+## Database Schema
+
+### User Model
+- `id`: Unique identifier
+- `email`: Unique email address
+- `username`: Unique username (must start with @)
+- `passwordHash`: Encrypted password
+- `instagramHandle`: Optional Instagram handle
+- `role`: USER or ADMIN
+- `isApproved`: Admin approval status
+- `invitedBy`: Reference to invite used
+
+### Invite Model
+- `id`: Unique identifier
+- `code`: Unique invite code
+- `email`: Email for the invite
+- `createdBy`: Admin who created it
+- `expiresAt`: Expiration time (5 hours from creation)
+- `isUsed`: Whether the invite was used
+- `usedAt`: When it was used
+
+### Spot Model
+- `id`: Unique identifier
+- `name`: Spot name
+- `description`: Optional description
+- `latitude`: GPS latitude
+- `longitude`: GPS longitude
+- `address`: Optional address
+- `privacyLevel`: PRIVATE, GROUP, or PUBLIC
+- `userId`: Owner of the spot
+
+## API Endpoints
+
+### Authentication
+
+#### Register
+```http
+POST /auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "username": "@username",
+  "password": "securepassword123",
+  "inviteCode": "invite-code-here",
+  "instagramHandle": "@instagram_handle"
+}
+```
+
+#### Login
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "securepassword123"
+}
+
+Response:
+{
+  "access_token": "jwt-token",
+  "user": {
+    "id": "user-id",
+    "email": "user@example.com",
+    "username": "@username",
+    "role": "USER"
+  }
+}
+```
+
+### Admin Endpoints (Requires ADMIN role)
+
+#### Create Invite
+```http
+POST /admin/invites
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "email": "newuser@example.com"
+}
+
+Response:
+{
+  "inviteCode": "abc123...",
+  "email": "newuser@example.com",
+  "expiresAt": "2024-01-01T12:00:00.000Z",
+  "inviteLink": "http://localhost:5173/register?invite=abc123..."
+}
+```
+
+#### Get All Invites
+```http
+GET /admin/invites
+Authorization: Bearer <token>
+```
+
+#### Get Pending Users
+```http
+GET /admin/users/pending
+Authorization: Bearer <token>
+```
+
+#### Get All Users
+```http
+GET /admin/users
+Authorization: Bearer <token>
+```
+
+#### Approve User
+```http
+PATCH /admin/users/:id/approve
+Authorization: Bearer <token>
+```
+
+#### Reject/Delete User
+```http
+DELETE /admin/users/:id
+Authorization: Bearer <token>
+```
+
+#### Get Statistics
+```http
+GET /admin/stats
+Authorization: Bearer <token>
+
+Response:
+{
+  "totalUsers": 10,
+  "approvedUsers": 8,
+  "pendingUsers": 2,
+  "totalSpots": 50,
+  "publicSpots": 20
+}
+```
+
+## Scripts
+
+- `npm run start` - Start production server
+- `npm run start:dev` - Start development server with hot reload
+- `npm run start:debug` - Start in debug mode
+- `npm run build` - Build for production
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
+- `npm run test` - Run tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:cov` - Run tests with coverage
+
+## Prisma Commands
+
+- `npx prisma generate` - Generate Prisma Client
+- `npx prisma migrate dev` - Run migrations in development
+- `npx prisma migrate deploy` - Run migrations in production
+- `npx prisma studio` - Open Prisma Studio (database GUI)
+- `npx prisma db push` - Push schema changes without migrations
+
+## Security Features
+
+1. **Password Encryption**: All passwords are hashed using bcrypt with 10 rounds
+2. **JWT Authentication**: Secure token-based authentication
+3. **Role-Based Access**: Admin-only endpoints protected by guards
+4. **Invite Validation**:
+   - Expires in 5 hours
+   - Single-use only
+   - Email verification
+5. **Input Validation**: All DTOs validated with class-validator
+6. **CORS**: Configured to accept requests only from frontend
+
+## Project Structure
+
+```
+backend/
+├── src/
+│   ├── auth/                  # Authentication module
+│   │   ├── auth.controller.ts
+│   │   ├── auth.service.ts
+│   │   ├── auth.module.ts
+│   │   ├── dto/               # Data Transfer Objects
+│   │   ├── guards/            # JWT & Roles guards
+│   │   ├── strategies/        # Passport strategies
+│   │   └── decorators/        # Custom decorators
+│   ├── admin/                 # Admin module
+│   │   ├── admin.controller.ts
+│   │   ├── admin.service.ts
+│   │   └── dto/
+│   ├── prisma/                # Prisma module
+│   │   ├── prisma.service.ts
+│   │   └── prisma.module.ts
+│   ├── app.module.ts          # Root module
+│   └── main.ts                # Application entry point
+├── prisma/
+│   ├── schema.prisma          # Database schema
+│   └── prisma.config.ts       # Prisma configuration
+├── Dockerfile                 # Docker configuration
+├── .dockerignore
+└── package.json
+```
+
+## Troubleshooting
+
+### Database Connection Issues
+
+If you can't connect to the database:
+
+1. Ensure PostgreSQL is running:
+   ```bash
+   docker compose ps
+   ```
+
+2. Check logs:
+   ```bash
+   docker compose logs postgres
+   ```
+
+3. Verify DATABASE_URL in `.env` matches your setup
+
+### Port Already in Use
+
+If port 3000 is already in use:
+
+1. Change PORT in `.env`
+2. Update `docker-compose.yml` port mapping
+3. Restart the container
+
+### Migration Issues
+
+If migrations fail:
+
+```bash
+# Reset database (WARNING: deletes all data)
+npx prisma migrate reset
+
+# Or create a new migration
+npx prisma migrate dev --name your_migration_name
+```
+
+## Creating Your First Admin User
+
+Since the first user needs to be an admin, you'll need to manually create one in the database:
+
+1. Start Prisma Studio:
+   ```bash
+   npx prisma studio
+   ```
+
+2. Create an invite manually
+3. Register a user with that invite
+4. In Prisma Studio, update the user's `role` to `ADMIN` and `isApproved` to `true`
+
+Or use a seed script (create your own in `prisma/seed.ts`)
+
+## Production Deployment
+
+1. Set strong `JWT_SECRET` in environment variables
+2. Use proper PostgreSQL credentials
+3. Set `NODE_ENV=production`
+4. Run `npm run build`
+5. Use `npm run start:prod`
+6. Consider using PM2 or similar for process management
+7. Set up SSL/HTTPS
+8. Configure proper CORS origins
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT

@@ -16,6 +16,34 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - f1spots-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: f1spots-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:password@postgres:5432/f1spots?schema=public"
+      PORT: 3000
+      JWT_SECRET: "your-super-secret-jwt-key-change-this-in-production"
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - f1spots-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
 
 volumes:
   postgres_data:
+
+networks:
+  f1spots-network:
+    driver: bridge

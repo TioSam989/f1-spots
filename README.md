@@ -47,10 +47,166 @@ Users can control the visibility of their saved spots:
 
 We don't want problems, and we don't want to expose cool places to people who might bring trouble. Let's F1 and relax.
 
+## Tech Stack
+
+### Backend
+- **NestJS** - Node.js framework
+- **PostgreSQL** - Database
+- **Prisma** - ORM
+- **JWT** - Authentication
+- **bcrypt** - Password encryption
+
+### Frontend
+- **SvelteKit 2** - Web framework
+- **Svelte 5** - UI library with runes
+- **TypeScript** - Type safety
+
+### DevOps
+- **Docker** - Containerization
+- **Docker Compose** - Multi-container orchestration
+
+## Quick Start
+
+### Prerequisites
+- Docker & Docker Compose
+- Node.js 20+
+- npm or yarn
+
+### 1. Start with Docker (Easiest)
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd f1+spots
+
+# Start everything (database + backend)
+docker compose up -d
+
+# Install frontend dependencies
+cd frontend
+npm install
+
+# Start frontend dev server
+npm run dev
+```
+
+Visit:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3000
+
+### 2. Local Development
+
+#### Backend
+
+```bash
+cd backend
+
+# Copy environment file
+cp .env.example .env
+
+# Start database only
+docker compose up postgres -d
+
+# Install dependencies
+npm install
+
+# Run migrations
+npx prisma generate
+npx prisma migrate dev
+
+# Start backend
+npm run start:dev
+```
+
+#### Frontend
+
+```bash
+cd frontend
+
+# Copy environment file
+cp .env.example .env
+
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+```
+
+### 3. Create First Admin User
+
+1. Start Prisma Studio:
+   ```bash
+   cd backend
+   npx prisma studio
+   ```
+
+2. In Prisma Studio, create an Invite manually with:
+   - `code`: any unique string (e.g., "first-admin-invite")
+   - `email`: your email
+   - `expiresAt`: a future date
+   - `isUsed`: false
+   - `createdBy`: any string (e.g., "system")
+
+3. Use the invite code to register (or create user directly in Prisma Studio)
+
+4. Update the user in Prisma Studio:
+   - Set `role` to `ADMIN`
+   - Set `isApproved` to `true`
+
+5. Now you can login to the admin dashboard!
+
+## Project Structure
+
+```
+f1+spots/
+├── backend/              # NestJS API
+│   ├── src/
+│   │   ├── auth/        # Authentication & JWT
+│   │   ├── admin/       # Admin & invite management
+│   │   ├── prisma/      # Database service
+│   │   └── main.ts
+│   ├── prisma/
+│   │   └── schema.prisma
+│   ├── Dockerfile
+│   └── README.md
+├── frontend/             # SvelteKit app
+│   ├── src/
+│   │   ├── routes/      # Pages
+│   │   └── lib/         # API client
+│   └── README.md
+├── docker-compose.yml    # Docker services
+└── README.md
+```
+
+## Documentation
+
+- [Backend Documentation](backend/README.md) - API endpoints, database schema, deployment
+- [Frontend Documentation](frontend/README.md) - Components, routing, styling
+
+## Features Implemented
+
+- ✅ JWT Authentication with bcrypt password hashing
+- ✅ Role-based access control (ADMIN, USER)
+- ✅ Invite system (5-hour expiration, single-use)
+- ✅ Admin dashboard for user management
+- ✅ User approval workflow
+- ✅ Username validation (must start with @)
+- ✅ Instagram handle verification
+- ✅ Privacy levels for spots (Private, Group, Public)
+- ✅ Statistics tracking
+- ✅ Docker setup for easy deployment
+
 ## Roadmap
 
 - [x] Project concept
-- [ ] Website development
+- [x] Backend API with authentication
+- [x] Database schema & Prisma setup
+- [x] Admin dashboard
+- [x] Invite system
+- [ ] User spots management
+- [ ] Map integration
+- [ ] Group functionality
 - [ ] Reach milestone number of saved spots
 - [ ] Android application development
 - [ ] iOS application (future consideration)

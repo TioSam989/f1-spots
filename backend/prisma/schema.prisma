@@ -6,14 +6,63 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  username     String   @unique
-  passwordHash String   @map("password_hash")
-  profileImage String?  @map("profile_image")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique
+  passwordHash  String    @map("password_hash")
+  instagramHandle String? @map("instagram_handle")
+  profileImage  String?   @map("profile_image")
+  role          Role      @default(USER)
+  isApproved    Boolean   @default(false) @map("is_approved")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  invitedBy     String?   @map("invited_by")
+  invite        Invite?   @relation(fields: [invitedBy], references: [id])
+  spots         Spot[]
 
   @@map("users")
+}
+
+model Invite {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  email       String
+  createdBy   String    @map("created_by")
+  expiresAt   DateTime  @map("expires_at")
+  usedAt      DateTime? @map("used_at")
+  isUsed      Boolean   @default(false) @map("is_used")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  users       User[]
+
+  @@map("invites")
+}
+
+enum PrivacyLevel {
+  PRIVATE
+  GROUP
+  PUBLIC
+}
+
+model Spot {
+  id            String        @id @default(cuid())
+  name          String
+  description   String?
+  latitude      Float
+  longitude     Float
+  address       String?
+  privacyLevel  PrivacyLevel  @default(PRIVATE) @map("privacy_level")
+  userId        String        @map("user_id")
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  @@map("spots")
 }
