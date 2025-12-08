@@ -296,7 +296,24 @@
       <div class="overlay" on:click={toggleCreateSpot}>
         <div class="dialog" on:click|stopPropagation>
           <h3>Add Spot</h3>
-          <p>📌 Drag the pin on the map to set location</p>
+          <p>📌 Drag pin or click "Drop Here" to place it</p>
+          <button
+            class="btn-secondary"
+            style="width: 100%; margin-bottom: 1rem;"
+            on:click={() => {
+              const center = map.getCenter();
+              newSpot = {
+                ...newSpot,
+                latitude: center.lat,
+                longitude: center.lng
+              };
+              if (newSpotMarker) {
+                newSpotMarker.setLngLat([center.lng, center.lat]);
+              }
+            }}
+          >
+            📍 Drop Pin at Center
+          </button>
           <input type="text" placeholder="Name" bind:value={newSpot.name} />
           <textarea placeholder="Description" bind:value={newSpot.description}></textarea>
           <select bind:value={newSpot.privacyLevel}>
